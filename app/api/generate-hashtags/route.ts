@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { getUserByFarcasterId, createUser, saveGeneratedTip } from '../../../lib/database';
+import { checkUserLimits, trackTipUsage } from '../../../lib/subscription';
+import { ApiResponse } from '../../../lib/types';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY,
@@ -9,12 +12,44 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { niche, platform } = await request.json();
+    const { niche, platform, farcasterId } = await request.json();
 
     if (!niche) {
       return NextResponse.json(
-        { error: 'Niche is required' },
+        { success: false, error: 'Niche is required' } as ApiResponse,
         { status: 400 }
+      );
+    }
+
+    if (!farcasterId) {
+      return NextResponse.json(
+        { success: false, error: 'Farcaster ID is required' } as ApiResponse,
+        { status: 400 }
+      );
+    }
+
+    // Get or create user
+    let user = await getUserByFarcasterId(farcasterId);
+    if (!user) {
+      user = await createUser(farcasterId);
+    }
+
+    // Check subscription limits
+    const limitCheck = await checkUserLimits(user, 'hashtags');
+    if (!limitCheck.canUse) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: limitCheck.upgradeRequired
+            ? 'Daily limit reached. Upgrade to premium for unlimited access.'
+            : 'Daily limit reached. Try again tomorrow.',
+          data: {
+            remaining: limitCheck.remaining,
+            limit: limitCheck.limit,
+            upgradeRequired: limitCheck.upgradeRequired,
+          }
+        } as ApiResponse,
+        { status: 429 }
       );
     }
 
@@ -52,11 +87,38 @@ Generate only the hashtags with # symbols, separated by spaces.`;
       throw new Error('No hashtags generated');
     }
 
-    return NextResponse.json({ hashtags });
+    // Save the generated tip
+    const savedTip = await saveGeneratedTip({
+      userId: user.userId,
+      tipType: 'hashtags',
+      content: hashtags,
+      platform,
+      metadata: { niche },
+    });
+
+    // Track usage
+    await trackTipUsage(user.userId, 'hashtags');
+
+    const response: ApiResponse<{
+      hashtags: string;
+      tipId: string;
+      remaining: number;
+      limit: number;
+    }> = {
+      success: true,
+      data: {
+        hashtags,
+        tipId: savedTip.tipId,
+        remaining: limitCheck.remaining - 1,
+        limit: limitCheck.limit,
+      },
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error generating hashtags:', error);
     return NextResponse.json(
-      { error: 'Failed to generate hashtags' },
+      { success: false, error: 'Failed to generate hashtags' } as ApiResponse,
       { status: 500 }
     );
   }

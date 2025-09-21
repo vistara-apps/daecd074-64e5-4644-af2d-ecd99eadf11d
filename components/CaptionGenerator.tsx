@@ -23,22 +23,34 @@ export function CaptionGenerator() {
     if (!formData.theme.trim()) return;
 
     setIsGenerating(true);
-    
+
     try {
+      // For demo purposes, using a mock farcasterId
+      // In production, this would come from the Farcaster frame context
+      const farcasterId = 'demo_user_' + Date.now();
+
       const response = await fetch('/api/generate-caption', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          farcasterId,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate caption');
+      const data = await response.json();
+
+      if (!data.success) {
+        if (data.error?.includes('Daily limit reached')) {
+          alert(data.error);
+          return;
+        }
+        throw new Error(data.error || 'Failed to generate caption');
       }
 
-      const data = await response.json();
-      setGeneratedCaption(data.caption);
+      setGeneratedCaption(data.data.caption);
     } catch (error) {
       console.error('Error generating caption:', error);
       // Fallback caption for demo

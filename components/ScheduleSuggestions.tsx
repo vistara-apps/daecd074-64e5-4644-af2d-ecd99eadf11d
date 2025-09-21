@@ -44,9 +44,39 @@ export function ScheduleSuggestions() {
     }
   };
 
-  const handleGenerate = () => {
-    const data = scheduleData[formData.platform];
-    const schedule = `
+  const handleGenerate = async () => {
+    try {
+      // For demo purposes, using a mock farcasterId
+      // In production, this would come from the Farcaster frame context
+      const farcasterId = 'demo_user_' + Date.now();
+
+      const response = await fetch('/api/generate-schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          farcasterId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        if (data.error?.includes('Daily limit reached')) {
+          alert(data.error);
+          return;
+        }
+        throw new Error(data.error || 'Failed to generate schedule');
+      }
+
+      setGeneratedSchedule(data.data.schedule.content);
+    } catch (error) {
+      console.error('Error generating schedule:', error);
+      // Fallback to client-side generation
+      const data = scheduleData[formData.platform as keyof typeof scheduleData];
+      const schedule = `
 📅 Best Posting Times for ${formData.platform.charAt(0).toUpperCase() + formData.platform.slice(1)}
 
 🔥 Peak Times: ${data.peak}
@@ -60,9 +90,10 @@ ${data.weekend.join('\n')}
 ⏰ Timezone: ${formData.timezone}
 
 💡 Tip: Consistency is key! Post regularly during these optimal windows for maximum engagement.
-    `.trim();
-    
-    setGeneratedSchedule(schedule);
+      `.trim();
+
+      setGeneratedSchedule(schedule);
+    }
   };
 
   const handleCopy = async () => {
