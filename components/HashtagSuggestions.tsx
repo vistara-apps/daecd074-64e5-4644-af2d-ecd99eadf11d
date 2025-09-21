@@ -21,22 +21,34 @@ export function HashtagSuggestions() {
     if (!formData.niche.trim()) return;
 
     setIsGenerating(true);
-    
+
     try {
+      // For demo purposes, using a mock farcasterId
+      // In production, this would come from the Farcaster frame context
+      const farcasterId = 'demo_user_' + Date.now();
+
       const response = await fetch('/api/generate-hashtags', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          farcasterId,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate hashtags');
+      const data = await response.json();
+
+      if (!data.success) {
+        if (data.error?.includes('Daily limit reached')) {
+          alert(data.error);
+          return;
+        }
+        throw new Error(data.error || 'Failed to generate hashtags');
       }
 
-      const data = await response.json();
-      setGeneratedHashtags(data.hashtags);
+      setGeneratedHashtags(data.data.hashtags);
     } catch (error) {
       console.error('Error generating hashtags:', error);
       // Fallback hashtags for demo

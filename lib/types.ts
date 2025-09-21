@@ -3,6 +3,8 @@ export interface User {
   farcasterId: string;
   creationDate: Date;
   subscriptionStatus: 'free' | 'premium';
+  tipCount: number;
+  lastActivity: Date;
 }
 
 export interface GeneratedTip {
@@ -12,6 +14,7 @@ export interface GeneratedTip {
   content: string;
   creationDate: Date;
   platform: string;
+  metadata?: Record<string, any>; // Additional data like request parameters
 }
 
 export interface CaptionRequest {
@@ -28,4 +31,32 @@ export interface HashtagRequest {
 export interface ScheduleRequest {
   platform: 'instagram' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok';
   timezone: string;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface SubscriptionLimits {
+  free: {
+    captionsPerDay: number;
+    hashtagsPerDay: number;
+    schedulesPerDay: number;
+  };
+  premium: {
+    captionsPerDay: number;
+    hashtagsPerDay: number;
+    schedulesPerDay: number;
+  };
+}
+
+export interface AnalyticsEvent {
+  eventId: string;
+  userId: string;
+  eventType: 'tip_generated' | 'subscription_upgraded' | 'feature_used';
+  eventData: Record<string, any>;
+  timestamp: Date;
 }
