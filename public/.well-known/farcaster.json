@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "frame": {
+    "version": "1",
+    "name": "Social Boost AI",
+    "subtitle": "Built with Zara",
+    "description": "Social Boost AI is a Base Mini App built with Zara.",
+    "iconUrl": "https://0co.to/images/zara-2.png",
+    "homeUrl": "https://daecd07464e54644af2decd99eadf11d-cm96.vercel.app",
+    "splashImageUrl": "https://daecd07464e54644af2decd99eadf11d-cm96.vercel.app/splash.png",
+    "splashBackgroundColor": "#000000",
+    "heroImageUrl": "https://daecd07464e54644af2decd99eadf11d-cm96.vercel.app/image.png",
+    "tagline": "Social Boost AI",
+    "screenshotUrls": [
+      "https://daecd07464e54644af2decd99eadf11d-cm96.vercel.app/screenshot.png",
+      "https://daecd07464e54644af2decd99eadf11d-cm96.vercel.app/screenshot.png"
+    ],
+    "primaryCategory": "social",
+    "tags": [
+      "base",
+      "miniapp",
+      "onchainkit"
+    ],
+    "webhookUrl": "https://daecd07464e54644af2decd99eadf11d-cm96.vercel.app/api/webhook"
+  }
+}

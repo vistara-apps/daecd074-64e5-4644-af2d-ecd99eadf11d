@@ -1,0 +1,14 @@
+{
+  "name": "Social Boost AI",
+  "description": "Social Boost AI is a Base Mini App built with Zara.",
+  "image": "https://dummyimage.com/1200x628/0a0b0d/ffffff.png&text=OG",
+  "external_url": "https://daecd074-64e5-4644-af2d-ecd99eadf11d.vercel.app",
+  "properties": {
+    "app": {
+      "name": "Social Boost AI",
+      "description": "Social Boost AI is a Base Mini App built with Zara.",
+      "url": "https://daecd074-64e5-4644-af2d-ecd99eadf11d.vercel.app",
+      "icon": "https://0co.to/images/zara-2.png"
+    }
+  }
+}
