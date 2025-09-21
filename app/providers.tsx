@@ -1,6 +1,7 @@
 'use client';
 
-import { MiniKitProvider } from '@coinbase/minikit';
+import { OnchainKitProvider } from '@coinbase/onchainkit';
+import { base } from 'wagmi/chains';
 import { ReactNode } from 'react';
 
 interface ProvidersProps {
@@ -9,11 +10,11 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <MiniKitProvider
-      chain="base"
-      apiKey={process.env.NEXT_PUBLIC_MINIKIT_API_KEY || ''}
+    <OnchainKitProvider
+      apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY || ''}
+      chain={base}
     >
       {children}
-    </MiniKitProvider>
+    </OnchainKitProvider>
   );
 }
